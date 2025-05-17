@@ -1,0 +1,133 @@
+.admin-panel {
+  position: relative;
+  max-width: 500px;
+  margin: 50px auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  text-align: left;
+}
+
+body, html, #root {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-panel h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.admin-back-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #444;
+  font-size: 24px;
+  z-index: 9999;
+  transition: color 0.2s ease;
+}
+
+.admin-back-button:hover {
+  color: #0a06ea;
+}
+
+.admin-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #0074d9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+  background-color: #005fa3;
+}
+
+hr {
+  margin: 30px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+/* 📸 Vista previa de imagen subida */
+.preview-container {
+  position: relative;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.preview-text {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.preview-imagen {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.preview-imagen:hover {
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+
+/* ⏳ Spinner mientras se sube la imagen */
+.spinner-subida {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.circulo-spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #0074d9;
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+  margin: 0 auto 8px;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

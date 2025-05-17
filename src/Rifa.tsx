@@ -23,7 +23,7 @@ function Countdown({ targetDate }: { targetDate: Date }) {
       days: Math.max(0, Math.floor(difference / (1000 * 60 * 60 * 24))),
       hours: Math.max(0, Math.floor((difference / (1000 * 60 * 60)) % 24)),
       minutes: Math.max(0, Math.floor((difference / 1000 / 60) % 60)),
-      seconds: Math.max(0, Math.floor((difference / 1000) % 60)),
+      // seconds: Math.max(0, Math.floor((difference / 1000) % 60)),
     };
   }
 

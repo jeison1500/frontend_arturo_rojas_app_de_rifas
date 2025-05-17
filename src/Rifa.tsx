@@ -59,6 +59,8 @@ interface ErroresFormulario {
 function Rifa() {
 const [cedula, setCedula] = useState('');
 const [nombreCliente, setNombreCliente] = useState('');
+const [buscandoNombre, setBuscandoNombre] = useState(false);
+const [cedulaNoEncontrada, setCedulaNoEncontrada] = useState(false);
 const [direccionCliente, setDireccionCliente] = useState('');
 const [telefonoCliente, setTelefonoCliente] = useState('');
 const [correoCliente, setCorreoCliente] = useState('');
@@ -83,23 +85,33 @@ useEffect(() => {
     const cedulaLimpia = cedula.trim();
     if (!cedulaLimpia) return;
 
+    setBuscandoNombre(true);
+    setCedulaNoEncontrada(false);
+
     try {
       const res = await fetch(`https://bakend-arturo-rojas-app-rifas.onrender.com/cliente?cedula=${cedulaLimpia}`);
       if (!res.ok) throw new Error('Error al consultar el cliente');
-    const data: Cliente[] = await res.json();
+      const data: Cliente[] = await res.json();
+      
       if (data && data.length > 0) {
         setNombreCliente(data[0].name || '');
+        setCedulaNoEncontrada(false);
       } else {
         setNombreCliente('');
+        setCedulaNoEncontrada(true);  // <-- no encontrado
       }
     } catch (error) {
       console.error('Error al buscar el cliente por cédula:', error);
       setNombreCliente('');
+      setCedulaNoEncontrada(true);  // <-- también en errores
+    } finally {
+      setBuscandoNombre(false);
     }
   };
 
   consultarNombrePorCedula();
 }, [cedula]);
+
 
 
   useEffect(() => {
@@ -366,6 +378,10 @@ setLoading(false);
   placeholder="Nombre completo"
   className={`rifa-input ${errores.nombre ? 'input-error' : ''}`}
 />
+{cedulaNoEncontrada && !buscandoNombre && (
+  <div className="mensaje-error">⚠️ Cédula no encontrada</div>
+)}
+
 
 
           <input

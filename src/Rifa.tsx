@@ -352,7 +352,7 @@ setLoading(false);
 
   {fechaFinSorteo && <Countdown targetDate={fechaFinSorteo} />}
           <input
-    type="text"
+    type="number"
     value={cedula}
     onChange={e => setCedula(e.target.value)}
     placeholder="Número de cédula"
@@ -377,7 +377,7 @@ setLoading(false);
   />
 
             <input
-    type="text"
+   type="number"
     value={telefonoCliente}
     onChange={e => setTelefonoCliente(e.target.value)}
     placeholder="Teléfono"
@@ -394,7 +394,7 @@ setLoading(false);
 
 
           <input
-    type="text"
+    type="number"
     value={factura}
     onChange={e => setFactura(e.target.value)}
     placeholder="Número de factura"

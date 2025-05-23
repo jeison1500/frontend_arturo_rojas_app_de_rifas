@@ -140,6 +140,27 @@ const consultarNombrePorCedula = async () => {
   });
 
   try {
+    // Paso 1: Consultar si ya está en la tabla de rifa
+    const { data: rifaData, error: rifaError } = await supabase
+      .from('rifa')
+      .select('nombre, direccion, telefono, correo')
+      .eq('cedula', cedulaLimpia)
+      .limit(1)
+      .single();
+
+    if (rifaData && !rifaError) {
+      // Rellenar automáticamente los campos si ya está registrado
+      setNombreCliente(rifaData.nombre || '');
+      setDireccionCliente(rifaData.direccion || '');
+      setTelefonoCliente(rifaData.telefono || '');
+      setCorreoCliente(rifaData.correo || '');
+      setCedulaNoEncontrada(false);
+      Swal.close();
+      setBuscandoNombre(false);
+      return;
+    }
+
+    // Paso 2: Si no está en rifa, buscar desde tu backend
     const res = await fetch(`https://bakend-arturo-rojas-app-rifas.onrender.com/cliente?cedula=${cedulaLimpia}`);
     if (!res.ok) throw new Error('Error al consultar el cliente');
     const data: Cliente[] = await res.json();
@@ -151,6 +172,7 @@ const consultarNombrePorCedula = async () => {
       setNombreCliente('');
       setCedulaNoEncontrada(true);
     }
+
   } catch (error) {
     console.error('Error al buscar el cliente por cédula:', error);
     setNombreCliente('');

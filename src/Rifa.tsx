@@ -79,38 +79,88 @@ const [numerosAsignados, setNumerosAsignados] = useState<number[]>([]);
 const [fechaInicioFacturas, setFechaInicioFacturas] = useState<Date | null>(null);
 const [fechaFinSorteo, setFechaFinSorteo] = useState<Date | null>(null);
 const [tituloRifa, setTituloRifa] = useState<string>('');
+// useEffect(() => {
+//   const consultarNombrePorCedula = async () => {
+//     const cedulaLimpia = cedula.trim();
+//     if (!cedulaLimpia) return;
 
-useEffect(() => {
-  const consultarNombrePorCedula = async () => {
-    const cedulaLimpia = cedula.trim();
-    if (!cedulaLimpia) return;
+//     setBuscandoNombre(true);
+//     setCedulaNoEncontrada(false);
 
-    setBuscandoNombre(true);
-    setCedulaNoEncontrada(false);
+//     Swal.fire({
+//       title: 'Buscando cliente...',
+//       text: 'Por favor espera un momento',
+//       allowOutsideClick: false,
+//       allowEscapeKey: false,
+//       didOpen: () => {
+//         Swal.showLoading();
+//       }
+//     });
 
-    try {
-      const res = await fetch(`https://bakend-arturo-rojas-app-rifas.onrender.com/cliente?cedula=${cedulaLimpia}`);
-      if (!res.ok) throw new Error('Error al consultar el cliente');
-      const data: Cliente[] = await res.json();
-      
-      if (data && data.length > 0) {
-        setNombreCliente(data[0].name || '');
-        setCedulaNoEncontrada(false);
-      } else {
-        setNombreCliente('');
-        setCedulaNoEncontrada(true);  // <-- no encontrado
-      }
-    } catch (error) {
-      console.error('Error al buscar el cliente por cédula:', error);
-      setNombreCliente('');
-      setCedulaNoEncontrada(true);  // <-- también en errores
-    } finally {
-      setBuscandoNombre(false);
+//     try {
+//       const res = await fetch(`https://bakend-arturo-rojas-app-rifas.onrender.com/cliente?cedula=${cedulaLimpia}`);
+//       if (!res.ok) throw new Error('Error al consultar el cliente');
+//       const data: Cliente[] = await res.json();
+
+//       if (data && data.length > 0) {
+//         setNombreCliente(data[0].name || '');
+//         setCedulaNoEncontrada(false);
+//       } else {
+//         setNombreCliente('');
+//         setCedulaNoEncontrada(true);
+//       }
+//     } catch (error) {
+//       console.error('Error al buscar el cliente por cédula:', error);
+//       setNombreCliente('');
+//       setCedulaNoEncontrada(true);
+//     } finally {
+//       setBuscandoNombre(false);
+//       Swal.close(); // Cierra el spinner de Swal
+//     }
+//   };
+
+//   consultarNombrePorCedula();
+// }, [cedula]);
+
+const consultarNombrePorCedula = async () => {
+  const cedulaLimpia = cedula.trim();
+  if (!cedulaLimpia) return;
+
+  setBuscandoNombre(true);
+  setCedulaNoEncontrada(false);
+
+  Swal.fire({
+    title: 'Buscando cliente...',
+    text: 'Por favor espera un momento',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
     }
-  };
+  });
 
-  consultarNombrePorCedula();
-}, [cedula]);
+  try {
+    const res = await fetch(`https://bakend-arturo-rojas-app-rifas.onrender.com/cliente?cedula=${cedulaLimpia}`);
+    if (!res.ok) throw new Error('Error al consultar el cliente');
+    const data: Cliente[] = await res.json();
+
+    if (data && data.length > 0) {
+      setNombreCliente(data[0].name || '');
+      setCedulaNoEncontrada(false);
+    } else {
+      setNombreCliente('');
+      setCedulaNoEncontrada(true);
+    }
+  } catch (error) {
+    console.error('Error al buscar el cliente por cédula:', error);
+    setNombreCliente('');
+    setCedulaNoEncontrada(true);
+  } finally {
+    setBuscandoNombre(false);
+    Swal.close();
+  }
+};
+
 
 
 
@@ -363,13 +413,17 @@ setLoading(false);
   </h1>
 
   {fechaFinSorteo && <Countdown targetDate={fechaFinSorteo} />}
-          <input
-    type="number"
-    value={cedula}
-    onChange={e => setCedula(e.target.value)}
-    placeholder="Número de cédula"
-    className={`rifa-input ${errores.cedula ? 'input-error' : ''}`}
-  />
+     <input
+  type="number"
+  value={cedula}
+  onChange={e => setCedula(e.target.value)}
+  onBlur={consultarNombrePorCedula} // se ejecuta al salir del campo
+  onKeyDown={e => {
+    if (e.key === 'Enter') consultarNombrePorCedula(); // o al presionar Enter
+  }}
+  placeholder="Número de cédula"
+  className={`rifa-input ${errores.cedula ? 'input-error' : ''}`}
+/>
 
  <input
   type="text"
@@ -378,6 +432,11 @@ setLoading(false);
   placeholder="Nombre completo"
   className={`rifa-input ${errores.nombre ? 'input-error' : ''}`}
 />
+{loading && (
+  <div className="custom-loader-overlay">
+    <div className="custom-loader-spinner"></div>
+  </div>
+)}
 {cedulaNoEncontrada && !buscandoNombre && (
   <div className="mensaje-error">⚠️ Cédula no encontrada</div>
 )}
@@ -444,11 +503,9 @@ setLoading(false);
         </div>
       </div>
       
-{loading && (
-  <div className="custom-loader-overlay">
-    <div className="custom-loader-spinner"></div>
-  </div>
-)}
+
+
+
 
     </>
   );

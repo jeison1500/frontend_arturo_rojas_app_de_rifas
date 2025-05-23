@@ -245,13 +245,16 @@ html, body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: transparent;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+ background-color: transparent; /* <--- esto es lo importante */
   z-index: 9999;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+ 
 }
+
 
 .custom-loader-spinner {
   width: 50px;
@@ -261,6 +264,14 @@ html, body {
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+
+.custom-loader-text {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: bold;
+}
+
 
 /* Animación de giro */
 @keyframes spin {

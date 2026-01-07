@@ -319,41 +319,113 @@ setLoading(false);
       return Swal.fire('Factura duplicada', 'Esta factura ya fue registrada en una rifa', 'warning');
     }
 
-    let numeroRifa: number;
-    let existe: boolean;
-    do {
-      numeroRifa = Math.floor(100000 + Math.random() * 900000);
-      const { data } = await supabase.from('rifa').select('id').eq('numero_rifa', numeroRifa);
-      existe = (data ?? []).length > 0;
-    } while (existe);
+    // let numeroRifa: number;
+    // let existe: boolean;
+    // do {
+    //   numeroRifa = Math.floor(100000 + Math.random() * 900000);
+    //   const { data } = await supabase.from('rifa').select('id').eq('numero_rifa', numeroRifa);
+    //   existe = (data ?? []).length > 0;
+    // } while (existe);
 
-    const { error } = await supabase.from('rifa').insert([{
-      cedula: cedulaLimpia,
-      nombre: nombreCliente.toUpperCase(),
-      direccion: direccionCliente.toUpperCase(),
-      telefono: telefonoCliente,
-      correo: correoCliente.toUpperCase(),
-      numero_rifa: numeroRifa,
-      factura_id: facturaLimpia
-    }]);
-setLoading(false);
+    // const { error } = await supabase.from('rifa').insert([{
+    //   cedula: cedulaLimpia,
+    //   nombre: nombreCliente.toUpperCase(),
+    //   direccion: direccionCliente.toUpperCase(),
+    //   telefono: telefonoCliente,
+    //   correo: correoCliente.toUpperCase(),
+    //   numero_rifa: numeroRifa,
+    //   factura_id: facturaLimpia
+    // }]);
 
-    if (error) {
-      return Swal.fire('Error', 'No se pudo guardar el número de rifa', 'error');
+// 🟩 CALCULAR PUNTOS A SUMAR
+const puntosGanados = Math.floor(montoFactura / 1000); // 1 punto por cada $1000
+
+try {
+  // 🟡 CONSULTAR SI YA EXISTE EN LA TABLA DE FIDELIZACIÓN
+  const { data: clienteExistente, error: errorExistente } = await supabase
+    .from('fidelizacion')
+    .select('id, puntos')
+    .eq('cedula', cedulaLimpia)
+    .maybeSingle();
+
+  if (errorExistente) {
+    console.error('Error al consultar cliente en fidelización:', errorExistente);
+    return Swal.fire('Error', 'No se pudo consultar la tabla de fidelización', 'error');
+  }
+
+  if (clienteExistente) {
+    // 🟦 CLIENTE EXISTENTE → SUMAR PUNTOS
+    const nuevosPuntos = (clienteExistente.puntos || 0) + puntosGanados;
+
+    const { error: errorUpdate } = await supabase
+      .from('fidelizacion')
+      .update({
+        puntos: nuevosPuntos,
+        fecha_ultima_factura: new Date(),
+      })
+      .eq('cedula', cedulaLimpia);
+
+    if (errorUpdate) {
+      console.error('Error al actualizar puntos:', errorUpdate);
+      return Swal.fire('Error', 'No se pudieron actualizar los puntos', 'error');
     }
 
     await Swal.fire(
-      '¡Éxito!',
-      `Nombre: ${nombreCliente.toUpperCase()}\nNúmero de rifa: ${numeroRifa}`,
+      '¡Puntos sumados!',
+      `Has ganado ${puntosGanados} puntos.\nTotal acumulado: ${nuevosPuntos}`,
       'success'
     );
+  } else {
+    // 🟨 CLIENTE NUEVO → INSERTAR CON PUNTOS INICIALES
+    const { error: errorInsert } = await supabase
+      .from('fidelizacion')
+      .insert([{
+        cedula: cedulaLimpia,
+        nombre: nombreCliente.toUpperCase(),
+        direccion: direccionCliente.toUpperCase(),
+        telefono: telefonoCliente,
+        correo: correoCliente.toUpperCase(),
+        puntos: puntosGanados,
+        fecha_ultima_factura: new Date(),
+      }]);
+
+    if (errorInsert) {
+      console.error('Error al insertar cliente en fidelización:', errorInsert);
+      return Swal.fire('Error', 'No se pudo guardar el registro de fidelización', 'error');
+    }
+
+    await Swal.fire(
+      '¡Cliente fidelizado!',
+      `Has ganado ${puntosGanados} puntos por esta factura.`,
+      'success'
+    );
+  }
+
+  limpiarFormulario(); // 🧽 Reset formulario tras éxito
+} catch (e) {
+  console.error('Error inesperado al registrar puntos de fidelización:', e);
+  Swal.fire('Error', 'Ocurrió un error inesperado al procesar la fidelización', 'error');
+}
+
+
+setLoading(false);
+
+    // if (error) {
+    //   return Swal.fire('Error', 'No se pudo guardar el número de rifa', 'error');
+    // }
+
+    // await Swal.fire(
+    //   '¡Éxito!',
+    //   `Nombre: ${nombreCliente.toUpperCase()}\nNúmero de rifa: ${numeroRifa}`,
+    //   'success'
+    // );
     limpiarFormulario();
   } catch (e) {
     console.error('Error en verificarFacturaYRegistrar:', e);
     setLoading(false);
     Swal.fire('Error', 'Ocurrió un problema inesperado', 'error');
   }
-};
+};  
 
 
   const consultarRifasExistentes = async () => {

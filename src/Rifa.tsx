@@ -428,69 +428,35 @@ setLoading(false);
 };  
 
 
-  // const consultarRifasExistentes = async () => {
-  //   if (!cedula) return Swal.fire('Cédula requerida', 'Introduce una cédula para consultar', 'warning');
+  const consultarRifasExistentes = async () => {
+    if (!cedula) return Swal.fire('Cédula requerida', 'Introduce una cédula para consultar', 'warning');
 
-  //   setLoading(true);
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('rifa')
-  //       .select('numero_rifa')
-  //       .eq('cedula', cedula);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('rifa')
+        .select('numero_rifa')
+        .eq('cedula', cedula);
 
-  //     setLoading(false);
+      setLoading(false);
 
-  //     if (error) {
-  //       console.error(error);
-  //       return Swal.fire('Error', 'No se pudo consultar los números de rifa', 'error');
-  //     }
+      if (error) {
+        console.error(error);
+        return Swal.fire('Error', 'No se pudo consultar los números de rifa', 'error');
+      }
 
-  //     if (!data || data.length === 0) {
-  //       setNumerosAsignados([]);
-  //       return Swal.fire('Sin registros', 'No hay números asignados para esta cédula', 'info');
-  //     }
+      if (!data || data.length === 0) {
+        setNumerosAsignados([]);
+        return Swal.fire('Sin registros', 'No hay números asignados para esta cédula', 'info');
+      }
 
-  //     setNumerosAsignados(data.map((r: any) => r.numero_rifa));
-  //   } catch (e) {
-  //     console.error('Error en consultarRifasExistentes:', e);
-  //     setLoading(false);
-  //     Swal.fire('Error', 'Ocurrió un problema inesperado al consultar', 'error');
-  //   }
-  // };
-
-const consultarPuntosCliente = async () => {
-  const cedulaLimpia = cedula.trim();
-
-  if (!cedulaLimpia) {
-    return Swal.fire('Cédula requerida', 'Por favor ingresa una cédula válida', 'warning');
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('fidelizacion')
-      .select('puntos')
-      .eq('cedula', cedulaLimpia)
-      .maybeSingle();
-
-    if (error || !data) {
-      return Swal.fire('Error', 'No se pudo consultar los puntos del cliente', 'error');
+      setNumerosAsignados(data.map((r: any) => r.numero_rifa));
+    } catch (e) {
+      console.error('Error en consultarRifasExistentes:', e);
+      setLoading(false);
+      Swal.fire('Error', 'Ocurrió un problema inesperado al consultar', 'error');
     }
-
-    return Swal.fire({
-      icon: 'success',
-      title: '🎯 Puntos del cliente',
-      html: `<h2 style="margin:0;">${data.puntos ?? 0} puntos</h2>`,
-      confirmButtonText: 'OK'
-    });
-
-  } catch (e) {
-    console.error('Error al consultar puntos:', e);
-    return Swal.fire('Error', 'Ocurrió un error inesperado', 'error');
-  }
-};
-
-
-
+  };
 
   return (
     <>
@@ -604,17 +570,17 @@ const consultarPuntosCliente = async () => {
     className={`rifa-input ${errores.factura ? 'input-error' : ''}`}
   />
             <button onClick={verificarFacturaYRegistrar} className="rifa-button">
-    Generar puntos
+    Generar número aleatorio
   </button>
-           {/* <button onClick={consultarRifasExistentes} className="rifa-button">
+           <button onClick={consultarRifasExistentes} className="rifa-button">
     Consultar números asignados
-  </button> */}
+  </button>
   {numerosAsignados.length > 0 && (
     <div className="tabla-numeros">
-      <h3>puntos asignados a esta cédula:</h3>
+      <h3>Números asignados a esta cédula:</h3>
       <table>
         <thead>
-          <tr><th>#</th><th>cantidad de puntos</th></tr>
+          <tr><th>#</th><th>Número de Rifa</th></tr>
         </thead>
         <tbody>
           {numerosAsignados.map((num, index) => (
@@ -624,11 +590,6 @@ const consultarPuntosCliente = async () => {
       </table>
     </div>
   )}
-
-  <button onClick={consultarPuntosCliente} className="rifa-button">
-  Consultar puntos del cliente
-</button>
-
 
           <div className="rifa-link">
             <a href="https://ejemplo.com/sorteo">Ir al sorteo →<br />ejemplo.com/sorteo</a>

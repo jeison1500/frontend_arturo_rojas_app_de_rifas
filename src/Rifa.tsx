@@ -460,11 +460,11 @@ setLoading(false);
 
 const consultarPuntosCliente = async () => {
   const cedulaLimpia = cedula.trim();
+
   if (!cedulaLimpia) {
-    return Swal.fire('Cédula requerida', 'Introduce una cédula para consultar', 'warning');
+    return Swal.fire('Cédula requerida', 'Por favor ingresa una cédula válida', 'warning');
   }
 
-  setLoading(true);
   try {
     const { data, error } = await supabase
       .from('fidelizacion')
@@ -472,23 +472,20 @@ const consultarPuntosCliente = async () => {
       .eq('cedula', cedulaLimpia)
       .maybeSingle();
 
-    setLoading(false);
-
-    if (error) {
-      console.error('Error al consultar fidelización:', error);
+    if (error || !data) {
       return Swal.fire('Error', 'No se pudo consultar los puntos del cliente', 'error');
     }
 
-    if (!data) {
-      return Swal.fire('Sin registro', 'Este cliente no tiene puntos asignados aún', 'info');
-    }
-
-    return Swal.fire('🎯 Puntos acumulados', `El cliente tiene ${data.puntos} puntos`, 'success');
+    return Swal.fire({
+      icon: 'success',
+      title: '🎯 Puntos del cliente',
+      html: `<h2 style="margin:0;">${data.puntos ?? 0} puntos</h2>`,
+      confirmButtonText: 'OK'
+    });
 
   } catch (e) {
-    console.error('Error inesperado al consultar puntos:', e);
-    setLoading(false);
-    Swal.fire('Error', 'Ocurrió un error inesperado al consultar puntos', 'error');
+    console.error('Error al consultar puntos:', e);
+    return Swal.fire('Error', 'Ocurrió un error inesperado', 'error');
   }
 };
 

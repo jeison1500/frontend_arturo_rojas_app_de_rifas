@@ -468,7 +468,7 @@ const consultarPuntosCliente = async () => {
   try {
     const { data, error } = await supabase
       .from('fidelizacion')
-      .select('puntos, direccion, telefono, correo')  // Trae también estos campos
+      .select('puntos')
       .eq('cedula', cedulaLimpia)
       .maybeSingle();
 
@@ -476,28 +476,19 @@ const consultarPuntosCliente = async () => {
 
     if (error) {
       console.error('Error al consultar fidelización:', error);
-      return Swal.fire('Error', 'No se pudo consultar los datos del cliente', 'error');
+      return Swal.fire('Error', 'No se pudo consultar los puntos del cliente', 'error');
     }
 
     if (!data) {
       return Swal.fire('Sin registro', 'Este cliente no tiene puntos asignados aún', 'info');
     }
 
-    // ✅ Rellenar campos adicionales
-    setDireccionCliente(data.direccion || '');
-    setTelefonoCliente(data.telefono || '');
-    setCorreoCliente(data.correo || '');
-
-    return Swal.fire(
-      '🎯 Datos del cliente',
-      `Puntos: ${data.puntos}\n\n📍 Dirección: ${data.direccion || 'No registrada'}\n📞 Teléfono: ${data.telefono || 'No registrado'}\n📧 Correo: ${data.correo || 'No registrado'}`,
-      'success'
-    );
+    return Swal.fire('🎯 Puntos acumulados', `El cliente tiene ${data.puntos} puntos`, 'success');
 
   } catch (e) {
-    console.error('Error inesperado al consultar fidelización:', e);
+    console.error('Error inesperado al consultar puntos:', e);
     setLoading(false);
-    Swal.fire('Error', 'Ocurrió un error inesperado al consultar datos', 'error');
+    Swal.fire('Error', 'Ocurrió un error inesperado al consultar puntos', 'error');
   }
 };
 

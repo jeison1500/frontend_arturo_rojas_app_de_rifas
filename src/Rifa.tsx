@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { supabase } from './supabaseClient';
 import './rifa.css';
-import { FaCog } from 'react-icons/fa';
+
 
 /* ============================
    COMPONENTE COUNTDOWN
